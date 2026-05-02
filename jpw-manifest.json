@@ -1,0 +1,15 @@
+{
+  "name": "JP Word Lab 日文單字積木",
+  "short_name": "日文單字",
+  "description": "音讀映射 + 複合動詞積木 + 漢字陷阱",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0d1117",
+  "theme_color": "#0d1117",
+  "icons": [
+    { "src": "icon-jpw-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-jpw-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-jpw-128.png", "sizes": "128x128", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

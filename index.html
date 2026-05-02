@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="日文單字">
+<meta name="theme-color" content="#1a0a1e">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-jpw-192.png">
+<title>JP Word Lab 日文單字積木</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d1117;--card:#161b22;--border:#30363d;--gold:#f0c040;--accent:#e05070;--blue:#58a6ff;--green:#3fb950;--red:#f85149;--purple:#bc8cff;--orange:#f0883e;--teal:#3fb9a0;--text:#e6edf3;--dim:#8b949e;--muted:#484f58;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Zen Maru Gothic','Fredoka',sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;overflow-x:hidden;user-select:text;-webkit-user-select:text;}
+.top-bar{display:flex;align-items:center;gap:8px;padding:8px 12px;position:sticky;top:0;background:var(--bg);z-index:100;border-bottom:1px solid var(--border);}
+.user-btn{padding:5px 14px;border-radius:20px;border:1.5px solid var(--border);background:transparent;color:var(--dim);font-family:inherit;font-size:0.7rem;font-weight:600;cursor:pointer;transition:all 0.2s;}
+.user-btn.active{background:var(--gold);color:#1a1a2e;border-color:var(--gold);}
+.score-badge{margin-left:auto;padding:5px 14px;border-radius:14px;background:var(--green);color:white;font-size:0.72rem;font-weight:700;}
+.layer-tabs{display:flex;gap:6px;padding:6px 12px;overflow-x:auto;-webkit-overflow-scrolling:touch;}.layer-tabs::-webkit-scrollbar{display:none;}
+.layer-tab{flex-shrink:0;padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--dim);font-family:inherit;font-size:0.68rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:all 0.2s;}
+.layer-tab.active{background:var(--gold);color:#1a1a2e;border-color:var(--gold);transform:scale(1.05);}
+.content{padding:10px 12px 80px;}
+.rule-card{background:var(--card);border-radius:16px;border:1px solid var(--border);padding:14px;margin-bottom:10px;}
+.rule-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.rule-emoji{font-size:1.6rem;}.rule-name{font-size:0.95rem;font-weight:700;}
+.rule-formula-tag{font-size:0.68rem;color:var(--gold);background:rgba(240,192,64,0.1);padding:3px 10px;border-radius:8px;display:inline-block;margin-top:3px;}
+.comic-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin:10px 0;}
+.comic-panel{border-radius:10px;padding:10px 8px;text-align:center;position:relative;min-height:68px;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.panel-num{position:absolute;top:4px;left:7px;font-size:0.5rem;font-weight:700;opacity:0.4;}
+.panel-emoji{font-size:1.4rem;margin-bottom:3px;}
+.panel-text{font-size:0.68rem;font-weight:600;line-height:1.3;color:rgba(0,0,0,0.7);}
+.comic-formula-text{text-align:center;font-size:0.68rem;font-weight:700;color:var(--dim);padding:4px 0;}
+.blindspot-box{background:rgba(255,255,255,0.02);border-radius:10px;padding:10px;margin-top:8px;}
+.bs-label{font-size:0.62rem;color:var(--gold);font-weight:600;margin-bottom:4px;}
+.bs-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.bs-cn,.bs-jp{font-size:0.65rem;line-height:1.4;padding:6px;border-radius:8px;}
+.bs-cn{background:rgba(224,80,112,0.08);}.bs-jp{background:rgba(88,166,255,0.08);}
+.bs-cn b,.bs-jp b{font-size:0.58rem;display:block;margin-bottom:2px;}
+.section-label{font-size:0.75rem;font-weight:700;color:var(--dim);margin:14px 0 6px;padding-left:8px;border-left:3px solid var(--gold);}
+.word-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+.word-chip{padding:6px 12px;border-radius:12px;background:var(--card);border:1.5px solid var(--border);font-family:inherit;font-size:0.72rem;font-weight:600;cursor:pointer;transition:all 0.2s;color:var(--text);}
+.word-chip:hover{transform:scale(1.04);border-color:var(--muted);}
+.word-chip.active{border-color:var(--gold);background:rgba(240,192,64,0.08);}
+.detail-card{background:rgba(240,192,64,0.04);border:1px solid rgba(240,192,64,0.12);border-radius:14px;padding:14px;margin-top:10px;animation:slideUp 0.25s ease;}
+@keyframes slideUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+.speak-btn{background:none;border:1px solid var(--gold);border-radius:50%;width:28px;height:28px;font-size:0.9rem;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;}
+.speak-btn:active{transform:scale(0.88);}
+.s{cursor:pointer;font-size:0.65rem;margin-left:2px;}
+.block-row{display:flex;align-items:center;justify-content:center;gap:6px;margin:12px 0;flex-wrap:wrap;}
+.blk{padding:6px 12px;border-radius:10px;font-size:0.82rem;font-weight:700;color:white;}
+.blk-cn{background:var(--accent);}.blk-rule{background:var(--purple);}.blk-jp{background:var(--blue);}.blk-result{background:var(--green);}
+.blk-op{font-size:1rem;color:var(--gold);background:none;padding:0;}
+.quiz-row{display:flex;gap:6px;justify-content:center;margin-top:10px;flex-wrap:wrap;}
+.quiz-opt{padding:8px 16px;border-radius:12px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-family:inherit;font-size:0.78rem;font-weight:600;cursor:pointer;transition:all 0.15s;}
+.quiz-opt:hover{border-color:var(--muted);}
+.quiz-opt.correct{border-color:var(--green);background:rgba(63,185,80,0.15);color:var(--green);}
+.quiz-opt.wrong{border-color:var(--red);background:rgba(248,81,73,0.1);color:var(--red);}
+.progress-row{display:flex;align-items:center;gap:4px;padding:6px 12px;flex-wrap:wrap;}
+.pill{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--border);background:transparent;font-size:0.55rem;font-weight:700;color:var(--dim);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s;flex-shrink:0;}
+.pill.done{border-color:var(--green);color:var(--green);background:rgba(63,185,80,0.1);}
+.pill.current{border-color:var(--gold);color:var(--gold);}
+.progress-label{margin-left:auto;font-size:0.65rem;color:var(--dim);}
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <button class="user-btn active" id="btn-iggy" onclick="switchUser('iggy')">🦊 Iggy</button>
+  <button class="user-btn" id="btn-yoyo" onclick="switchUser('yoyo')">🐸 Yoyo</button>
+  <div class="score-badge" id="score-badge">0 分</div>
+</div>
+<div class="layer-tabs" id="layer-tabs"></div>
+<div class="content" id="content"></div>
+<div class="progress-row" id="progress-row"></div>
+<script>
+function speak(t){if(!('speechSynthesis' in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='ja-JP';u.rate=0.75;speechSynthesis.speak(u);}
+function S(t){return '<span class="s" onclick="event.stopPropagation();speak(\''+t.replace(/'/g,"\\'")+'\')" title="'+t+'">🔊</span>';}
+
+const RULES=[
+// ═══════════════════════════════════════
+// Layer 1: 音讀映射 (Onyomi Mapping)
+// ═══════════════════════════════════════
+{id:'r_ng',emoji:'🔊',name:'-ng → 長音',formula:'中文 -ng 尾音 → 日文長音 う/い',
+comic:{panels:[{emoji:'🇹🇼',text:'感(gǎn) 動(dòng)',color:'#e8d4d4',border:'#c8a0a0'},{emoji:'🔄',text:'-ng 掉下來變長音',color:'#d4d4e8',border:'#a0a0c8'},{emoji:'🇯🇵',text:'かんどう！',color:'#d4e8d4',border:'#a0c8a0'},{emoji:'✅',text:'ng → う/い 長音',color:'#e8e8d4',border:'#c8c8a0'}],formula:'🔊 中:-ng → 日:長音(う/い)'},
+blindspot:{cn:'中文 -ng 結尾很自然',jp:'日文把 -ng 轉成長音拉長'},
+words:[
+{id:'on01',kanji:'感動',cn:'gǎn dòng',reading:'かんどう',chinese:'感動',quizType:'onyomi',quizQ:'感動 → 音讀？',quizAnswer:'かんどう',distractors:['かんとう','がんどう'],hint:'感(かん)+動(どう)'},
+{id:'on02',kanji:'成功',cn:'chéng gōng',reading:'せいこう',chinese:'成功',quizType:'onyomi',quizQ:'成功 → 音讀？',quizAnswer:'せいこう',distractors:['しょうこう','せいごう'],hint:'成(せい)+功(こう)'},
+{id:'on03',kanji:'傾向',cn:'qīng xiàng',reading:'けいこう',chinese:'傾向',quizType:'onyomi',quizQ:'傾向 → 音讀？',quizAnswer:'けいこう',distractors:['きんこう','けいきょう'],hint:'傾(けい)+向(こう)'},
+{id:'on04',kanji:'影響',cn:'yǐng xiǎng',reading:'えいきょう',chinese:'影響',quizType:'onyomi',quizQ:'影響 → 音讀？',quizAnswer:'えいきょう',distractors:['いんきょう','えいこう'],hint:'影(えい)+響(きょう)'},
+{id:'on05',kanji:'環境',cn:'huán jìng',reading:'かんきょう',chinese:'環境',quizType:'onyomi',quizQ:'環境 → 音讀？',quizAnswer:'かんきょう',distractors:['かんけい','がんきょう'],hint:'環(かん)+境(きょう)'}
+]},
+{id:'r_n',emoji:'🔔',name:'-n → ん',formula:'中文 -n 尾音 → 日文 ん',
+comic:{panels:[{emoji:'🇹🇼',text:'安(ān) 全(quán)',color:'#d4e8d4',border:'#a0c8a0'},{emoji:'🔔',text:'-n 變成 ん',color:'#d4d4e8',border:'#a0a0c8'},{emoji:'🇯🇵',text:'あんぜん！',color:'#e8d4d4',border:'#c8a0a0'},{emoji:'✅',text:'n → ん 鼻音',color:'#e8e8d4',border:'#c8c8a0'}],formula:'🔔 中:-n → 日:ん'},
+blindspot:{cn:'中文 -n 結尾收舌尖',jp:'日文 ん 是鼻音，不碰舌尖'},
+words:[
+{id:'on06',kanji:'安全',cn:'ān quán',reading:'あんぜん',chinese:'安全',quizType:'onyomi',quizQ:'安全 → 音讀？',quizAnswer:'あんぜん',distractors:['あんせん','あぜん'],hint:'安(あん)+全(ぜん)'},
+{id:'on07',kanji:'簡単',cn:'jiǎn dān',reading:'かんたん',chinese:'簡單',quizType:'onyomi',quizQ:'簡単 → 音讀？',quizAnswer:'かんたん',distractors:['けんたん','かんだん'],hint:'簡(かん)+単(たん)'},
+{id:'on08',kanji:'案内',cn:'àn nèi',reading:'あんない',chinese:'指引/導覽',quizType:'onyomi',quizQ:'案内 → 音讀？',quizAnswer:'あんない',distractors:['あない','あんだい'],hint:'案(あん)+内(ない)'},
+{id:'on09',kanji:'準備',cn:'zhǔn bèi',reading:'じゅんび',chinese:'準備',quizType:'onyomi',quizQ:'準備 → 音讀？',quizAnswer:'じゅんび',distractors:['しゅんび','じゅんぴ'],hint:'準(じゅん)+備(び)'},
+{id:'on10',kanji:'原因',cn:'yuán yīn',reading:'げんいん',chinese:'原因',quizType:'onyomi',quizQ:'原因 → 音讀？',quizAnswer:'げんいん',distractors:['がんいん','げいいん'],hint:'原(げん)+因(いん)'}
+]},
+{id:'r_soku',emoji:'⚡',name:'入聲 → 促音/く',formula:'中文入聲(-t/k/p) → 日文促音っ或く',
+comic:{panels:[{emoji:'🇹🇼',text:'出(chū) 發(fā)',color:'#e8d4c8',border:'#c8a088'},{emoji:'⚡',text:'入聲→促音っ',color:'#d4c8e8',border:'#a088c8'},{emoji:'🇯🇵',text:'しゅっぱつ！',color:'#c8e8d4',border:'#88c8a0'},{emoji:'✅',text:'-t/k/p→っ/く/つ',color:'#e8e8d4',border:'#c8c8a0'}],formula:'⚡ 入聲(-t/k/p) → 促音っ或く'},
+blindspot:{cn:'中文入聲字發音短促',jp:'日文把短促轉成促音っ或く'},
+words:[
+{id:'on11',kanji:'出発',cn:'chū fā',reading:'しゅっぱつ',chinese:'出發',quizType:'onyomi',quizQ:'出発 → 音讀？',quizAnswer:'しゅっぱつ',distractors:['しゅはつ','しゅうはつ'],hint:'出→しゅっ(促音)+発→ぱつ'},
+{id:'on12',kanji:'学校',cn:'xué xiào',reading:'がっこう',chinese:'學校',quizType:'onyomi',quizQ:'学校 → 音讀？',quizAnswer:'がっこう',distractors:['がくこう','がこう'],hint:'学→がっ(促音)+校→こう'},
+{id:'on13',kanji:'日本',cn:'rì běn',reading:'にほん',chinese:'日本',quizType:'onyomi',quizQ:'日本 → 音讀？',quizAnswer:'にほん',distractors:['にっぽん','じつほん'],hint:'日(にち→に)+本(ほん)'},
+{id:'on14',kanji:'発表',cn:'fā biǎo',reading:'はっぴょう',chinese:'發表',quizType:'onyomi',quizQ:'発表 → 音讀？',quizAnswer:'はっぴょう',distractors:['はつひょう','はぴょう'],hint:'発→はっ(促音)+表→ぴょう'},
+{id:'on15',kanji:'国際',cn:'guó jì',reading:'こくさい',chinese:'國際',quizType:'onyomi',quizQ:'国際 → 音讀？',quizAnswer:'こくさい',distractors:['こっさい','ごくさい'],hint:'国→こく+際→さい'}
+]},
+// ═══════════════════════════════════════
+// Layer 2: 複合動詞積木 (Compound Verb Blocks)
+// ═══════════════════════════════════════
+{id:'r_komu',emoji:'📥',name:'〜込む (進入/深入)',formula:'動詞ます形 + 込む = 進入/深入',
+comic:{panels:[{emoji:'📦',text:'動作往裡面鑽',color:'#c8d4e8',border:'#88a0c8'},{emoji:'📥',text:'込む=鑽進去',color:'#d4e8d4',border:'#88c888'},{emoji:'💡',text:'申し+込む=申請',color:'#e8d4c8',border:'#c8a088'},{emoji:'✅',text:'動詞+込む=深入',color:'#e8e8d4',border:'#c8c8a0'}],formula:'📥 動作+込む=往裡鑽/深入做'},
+blindspot:{cn:'中文靠加字表達「深入」',jp:'日文加込む一個詞搞定'},
+words:[
+{id:'cv01',base:'申し',suffix:'込む',word:'申し込む',chinese:'申請',quizType:'compound',quizQ:'申し(說) + ? → 申請',quizAnswer:'込む',distractors:['切る','出す'],hint:'📥 說進去=提出申請'},
+{id:'cv02',base:'飛び',suffix:'込む',word:'飛び込む',chinese:'跳進去',quizType:'compound',quizQ:'飛び(跳) + ? → 跳進去',quizAnswer:'込む',distractors:['出す','合う'],hint:'📥 跳+進去'},
+{id:'cv03',base:'冷え',suffix:'込む',word:'冷え込む',chinese:'驟降(氣溫)',quizType:'compound',quizQ:'冷え(變冷) + ? → 氣溫驟降',quizAnswer:'込む',distractors:['切る','出す'],hint:'📥 冷+深入=驟降'},
+{id:'cv04',base:'思い',suffix:'込む',word:'思い込む',chinese:'深信不疑',quizType:'compound',quizQ:'思い(想) + ? → 深信不疑',quizAnswer:'込む',distractors:['出す','直す'],hint:'📥 想+深入=深信'},
+{id:'cv05',base:'落ち',suffix:'込む',word:'落ち込む',chinese:'沮喪/陷入',quizType:'compound',quizQ:'落ち(掉落) + ? → 沮喪',quizAnswer:'込む',distractors:['切る','上げる'],hint:'📥 掉+進去=陷入'}
+]},
+{id:'r_kiru',emoji:'✂️',name:'〜切る (徹底/完畢)',formula:'動詞ます形 + 切る = 完全做完',
+comic:{panels:[{emoji:'🏃',text:'跑到終點',color:'#d4e8d4',border:'#88c888'},{emoji:'✂️',text:'切る=切斷/徹底',color:'#e8d4c8',border:'#c8a088'},{emoji:'💪',text:'走り+切る=跑完',color:'#c8d4e8',border:'#88a0c8'},{emoji:'✅',text:'動詞+切る=做到底',color:'#e8e8d4',border:'#c8c8a0'}],formula:'✂️ 動作+切る=徹底做完/做到極限'},
+blindspot:{cn:'中文加「完」或「光」',jp:'日文加切る=切斷可能性=徹底'},
+words:[
+{id:'cv06',base:'売り',suffix:'切る',word:'売り切る',chinese:'賣光',quizType:'compound',quizQ:'売り(賣) + ? → 賣光',quizAnswer:'切る',distractors:['込む','出す'],hint:'✂️ 賣+切斷=賣光'},
+{id:'cv07',base:'走り',suffix:'切る',word:'走り切る',chinese:'跑完全程',quizType:'compound',quizQ:'走り(跑) + ? → 跑完',quizAnswer:'切る',distractors:['込む','合う'],hint:'✂️ 跑+徹底=跑完'},
+{id:'cv08',base:'信じ',suffix:'切る',word:'信じ切る',chinese:'深信不疑',quizType:'compound',quizQ:'信じ(相信) + ? → 深信',quizAnswer:'切る',distractors:['込む','出す'],hint:'✂️ 信+徹底=深信'},
+{id:'cv09',base:'疲れ',suffix:'切る',word:'疲れ切る',chinese:'精疲力竭',quizType:'compound',quizQ:'疲れ(累) + ? → 累到極點',quizAnswer:'切る',distractors:['込む','上げる'],hint:'✂️ 累+極限=精疲力竭'},
+{id:'cv10',base:'使い',suffix:'切る',word:'使い切る',chinese:'用光',quizType:'compound',quizQ:'使い(用) + ? → 用光',quizAnswer:'切る',distractors:['込む','出す'],hint:'✂️ 用+切斷=用光'}
+]},
+{id:'r_dasu',emoji:'🚀',name:'〜出す (出來/突然開始)',formula:'動詞ます形 + 出す = 出來/突然開始',
+comic:{panels:[{emoji:'💭',text:'突然想起來！',color:'#d4c8e8',border:'#a088c8'},{emoji:'🚀',text:'出す=冒出/開始',color:'#c8e8d4',border:'#88c8a0'},{emoji:'🏃',text:'走り+出す=跑起來',color:'#e8d4c8',border:'#c8a088'},{emoji:'✅',text:'動詞+出す=開始做',color:'#e8e8d4',border:'#c8c8a0'}],formula:'🚀 動作+出す=突然開始/從裡面出來'},
+blindspot:{cn:'中文加「起來」或「出來」',jp:'日文加出す=從無到有冒出來'},
+words:[
+{id:'cv11',base:'思い',suffix:'出す',word:'思い出す',chinese:'想起來',quizType:'compound',quizQ:'思い(想) + ? → 想起來',quizAnswer:'出す',distractors:['込む','切る'],hint:'🚀 想+出來=想起來'},
+{id:'cv12',base:'走り',suffix:'出す',word:'走り出す',chinese:'開始跑',quizType:'compound',quizQ:'走り(跑) + ? → 突然開始跑',quizAnswer:'出す',distractors:['込む','切る'],hint:'🚀 跑+出發=開始跑'},
+{id:'cv13',base:'泣き',suffix:'出す',word:'泣き出す',chinese:'哭起來',quizType:'compound',quizQ:'泣き(哭) + ? → 突然哭起來',quizAnswer:'出す',distractors:['込む','合う'],hint:'🚀 哭+開始=哭起來'},
+{id:'cv14',base:'降り',suffix:'出す',word:'降り出す',chinese:'開始下(雨)',quizType:'compound',quizQ:'降り(下) + ? → 開始下雨',quizAnswer:'出す',distractors:['込む','切る'],hint:'🚀 降+開始=開始下'},
+{id:'cv15',base:'笑い',suffix:'出す',word:'笑い出す',chinese:'笑起來',quizType:'compound',quizQ:'笑い(笑) + ? → 突然笑起來',quizAnswer:'出す',distractors:['込む','直す'],hint:'🚀 笑+開始=笑起來'}
+]},
+{id:'r_au',emoji:'🤝',name:'〜合う (互相)',formula:'動詞ます形 + 合う = 互相做',
+comic:{panels:[{emoji:'🤝',text:'兩人互相幫忙',color:'#c8d4e8',border:'#88a0c8'},{emoji:'🔄',text:'合う=互相/共同',color:'#d4e8d4',border:'#88c888'},{emoji:'💬',text:'話し+合う=討論',color:'#e8d4c8',border:'#c8a088'},{emoji:'✅',text:'動詞+合う=彼此做',color:'#e8e8d4',border:'#c8c8a0'}],formula:'🤝 動作+合う=互相/彼此做'},
+blindspot:{cn:'中文加「互相」兩個字',jp:'日文加合う一個後綴搞定'},
+words:[
+{id:'cv16',base:'話し',suffix:'合う',word:'話し合う',chinese:'討論/商量',quizType:'compound',quizQ:'話し(說) + ? → 互相討論',quizAnswer:'合う',distractors:['込む','出す'],hint:'🤝 說+互相=討論'},
+{id:'cv17',base:'助け',suffix:'合う',word:'助け合う',chinese:'互相幫助',quizType:'compound',quizQ:'助け(幫) + ? → 互助',quizAnswer:'合う',distractors:['込む','切る'],hint:'🤝 幫+互相=互助'},
+{id:'cv18',base:'知り',suffix:'合う',word:'知り合う',chinese:'相識',quizType:'compound',quizQ:'知り(知) + ? → 認識彼此',quizAnswer:'合う',distractors:['出す','込む'],hint:'🤝 知+互相=相識'},
+{id:'cv19',base:'殺し',suffix:'合う',word:'殺し合う',chinese:'互相殘殺',quizType:'compound',quizQ:'殺し(殺) + ? → 互殺',quizAnswer:'合う',distractors:['込む','切る'],hint:'🤝 殺+互相=互殺'},
+{id:'cv20',base:'見つめ',suffix:'合う',word:'見つめ合う',chinese:'對視/凝視',quizType:'compound',quizQ:'見つめ(凝視) + ? → 互相凝視',quizAnswer:'合う',distractors:['出す','込む'],hint:'🤝 看+互相=對視'}
+]},
+{id:'r_naosu',emoji:'🔧',name:'〜直す (重新做)',formula:'動詞ます形 + 直す = 重新做一次',
+comic:{panels:[{emoji:'❌',text:'寫錯了！',color:'#e8c8c8',border:'#c88888'},{emoji:'🔧',text:'直す=修正/重來',color:'#c8d4e8',border:'#88a0c8'},{emoji:'✍️',text:'書き+直す=重寫',color:'#d4e8d4',border:'#88c888'},{emoji:'✅',text:'動詞+直す=重新做',color:'#e8e8d4',border:'#c8c8a0'}],formula:'🔧 動作+直す=重新做一次'},
+blindspot:{cn:'中文加「重新」兩個字',jp:'日文加直す=修正著做一遍'},
+words:[
+{id:'cv21',base:'書き',suffix:'直す',word:'書き直す',chinese:'重寫',quizType:'compound',quizQ:'書き(寫) + ? → 重寫',quizAnswer:'直す',distractors:['込む','出す'],hint:'🔧 寫+修正=重寫'},
+{id:'cv22',base:'作り',suffix:'直す',word:'作り直す',chinese:'重做',quizType:'compound',quizQ:'作り(做) + ? → 重做',quizAnswer:'直す',distractors:['切る','合う'],hint:'🔧 做+修正=重做'},
+{id:'cv23',base:'やり',suffix:'直す',word:'やり直す',chinese:'重來',quizType:'compound',quizQ:'やり(做) + ? → 重來一次',quizAnswer:'直す',distractors:['込む','出す'],hint:'🔧 做+修正=重來'},
+{id:'cv24',base:'考え',suffix:'直す',word:'考え直す',chinese:'重新考慮',quizType:'compound',quizQ:'考え(想) + ? → 重新考慮',quizAnswer:'直す',distractors:['込む','切る'],hint:'🔧 想+修正=重新考慮'},
+{id:'cv25',base:'見',suffix:'直す',word:'見直す',chinese:'重新審視',quizType:'compound',quizQ:'見(看) + ? → 重新審視',quizAnswer:'直す',distractors:['出す','合う'],hint:'🔧 看+修正=重新審視'}
+]},
+// ═══════════════════════════════════════
+// Layer 3: 漢字陷阱 + 詞性變換
+// ═══════════════════════════════════════
+{id:'r_trap',emoji:'⚠️',name:'漢字陷阱 (假性友誼)',formula:'日文漢字 ≠ 中文意思',
+comic:{panels:[{emoji:'📖',text:'勉強=學習！',color:'#e8d4d4',border:'#c8a0a0'},{emoji:'✉️',text:'手紙=信！',color:'#d4e8d4',border:'#a0c8a0'},{emoji:'⚠️',text:'別用中文猜！',color:'#e8e8d4',border:'#c8c8a0'},{emoji:'✅',text:'日文漢字要重新學',color:'#d4d4e8',border:'#a0a0c8'}],formula:'⚠️ 看到漢字→查日文意思→別猜'},
+blindspot:{cn:'台灣人看到漢字直覺用中文理解',jp:'日文很多漢字意思完全不同'},
+words:[
+{id:'tr01',kanji:'老婆',reading:'ろうば',chinese:'老太婆(不是妻子)',quizType:'kanji',quizQ:'日文「老婆」是什麼意思？',quizAnswer:'老太婆',distractors:['妻子','女朋友'],hint:'老婆(ろうば)=老太婆'},
+{id:'tr02',kanji:'検討',reading:'けんとう',chinese:'考慮/研究(不是反省)',quizType:'kanji',quizQ:'日文「検討」是什麼意思？',quizAnswer:'考慮/研究',distractors:['檢討反省','批評'],hint:'検討(けんとう)=考慮'},
+{id:'tr03',kanji:'邪魔',reading:'じゃま',chinese:'打擾/妨礙',quizType:'kanji',quizQ:'日文「邪魔」是什麼意思？',quizAnswer:'打擾/妨礙',distractors:['惡魔','邪惡'],hint:'邪魔(じゃま)=打擾'},
+{id:'tr04',kanji:'新聞',reading:'しんぶん',chinese:'報紙(不是新聞)',quizType:'kanji',quizQ:'日文「新聞」是什麼意思？',quizAnswer:'報紙',distractors:['新聞/消息','雜誌'],hint:'新聞(しんぶん)=報紙'},
+{id:'tr05',kanji:'汽車',reading:'きしゃ',chinese:'火車(不是汽車)',quizType:'kanji',quizQ:'日文「汽車」是什麼意思？',quizAnswer:'火車',distractors:['汽車/轎車','公車'],hint:'汽車(きしゃ)=火車'}
+]},
+{id:'r_sa',emoji:'📏',name:'-さ (數據型名詞化)',formula:'い形容詞去い + さ = 可量化的程度',
+comic:{panels:[{emoji:'📏',text:'高い→高さ(高度)',color:'#c8d4e8',border:'#88a0c8'},{emoji:'📐',text:'さ=可以量化的數據',color:'#d4e8d4',border:'#88c888'},{emoji:'🔢',text:'高さ3公尺！',color:'#e8d4c8',border:'#c8a088'},{emoji:'✅',text:'い→さ=數據名詞',color:'#e8e8d4',border:'#c8c8a0'}],formula:'📏 形容詞去い+さ=可量化的程度'},
+blindspot:{cn:'中文「高度/深度」直接用',jp:'日文形容詞去い+さ=量化數據'},
+words:[
+{id:'ms01',base:'高い',suffix:'さ',word:'高さ',chinese:'高度(可量化)',quizType:'morphology',quizQ:'高い(高) → 可量化的「高度」用？',quizAnswer:'高さ',distractors:['高み','高め'],hint:'📏 い→さ=數據'},
+{id:'ms02',base:'深い',suffix:'さ',word:'深さ',chinese:'深度(數據)',quizType:'morphology',quizQ:'深い(深) → 可量化的「深度」用？',quizAnswer:'深さ',distractors:['深み','深め'],hint:'📏 い→さ=數據'},
+{id:'ms03',base:'長い',suffix:'さ',word:'長さ',chinese:'長度',quizType:'morphology',quizQ:'長い(長) → 「長度」用？',quizAnswer:'長さ',distractors:['長み','長め'],hint:'📏 い→さ=數據'},
+{id:'ms04',base:'強い',suffix:'さ',word:'強さ',chinese:'強度',quizType:'morphology',quizQ:'強い(強) → 「強度」用？',quizAnswer:'強さ',distractors:['強み','強め'],hint:'📏 い→さ=數據'},
+{id:'ms05',base:'広い',suffix:'さ',word:'広さ',chinese:'面積/寬度',quizType:'morphology',quizQ:'広い(寬) → 「寬度」用？',quizAnswer:'広さ',distractors:['広み','広め'],hint:'📏 い→さ=數據'}
+]},
+{id:'r_mi',emoji:'🎨',name:'-み (感覺型名詞化)',formula:'い形容詞去い + み = 抽象的意境/感覺',
+comic:{panels:[{emoji:'🎨',text:'深い→深み(深邃感)',color:'#d4c8e8',border:'#a088c8'},{emoji:'💭',text:'み=無法量化的感覺',color:'#c8d4e8',border:'#88a0c8'},{emoji:'🌊',text:'色に深みがある',color:'#d4e8d4',border:'#88c888'},{emoji:'✅',text:'い→み=感覺名詞',color:'#e8e8d4',border:'#c8c8a0'}],formula:'🎨 形容詞去い+み=感覺/意境(不可量化)'},
+blindspot:{cn:'中文不區分「深度」vs「深邃感」',jp:'日文さ=數據 み=感覺 嚴格區分'},
+words:[
+{id:'ms06',base:'深い',suffix:'み',word:'深み',chinese:'深邃感(意境)',quizType:'morphology',quizQ:'深い(深) → 抽象的「深邃感」用？',quizAnswer:'深み',distractors:['深さ','深め'],hint:'🎨 い→み=感覺'},
+{id:'ms07',base:'強い',suffix:'み',word:'強み',chinese:'強項/優勢',quizType:'morphology',quizQ:'強い(強) → 「強項」用？',quizAnswer:'強み',distractors:['強さ','強め'],hint:'🎨 い→み=感覺'},
+{id:'ms08',base:'弱い',suffix:'み',word:'弱み',chinese:'弱點',quizType:'morphology',quizQ:'弱い(弱) → 「弱點」用？',quizAnswer:'弱み',distractors:['弱さ','弱め'],hint:'🎨 い→み=感覺'},
+{id:'ms09',base:'甘い',suffix:'み',word:'甘み',chinese:'甜味(感覺)',quizType:'morphology',quizQ:'甘い(甜) → 「甜味」用？',quizAnswer:'甘み',distractors:['甘さ','甘め'],hint:'🎨 い→み=感覺'},
+{id:'ms10',base:'痛い',suffix:'み',word:'痛み',chinese:'疼痛感',quizType:'morphology',quizQ:'痛い(痛) → 「疼痛感」用？',quizAnswer:'痛み',distractors:['痛さ','痛め'],hint:'🎨 い→み=感覺'}
+]}
+];
+
+let currentUser='iggy',currentRuleIdx=0,selectedWordIdx=-1,totalScore=0,progress={},quizAnswered={};
+function loadUserData(){currentUser=localStorage.getItem('jw-user')||'iggy';totalScore=parseInt(localStorage.getItem('jw-'+currentUser+'-score')||'0');progress=JSON.parse(localStorage.getItem('jw-'+currentUser+'-progress')||'{}');quizAnswered=JSON.parse(localStorage.getItem('jw-'+currentUser+'-quiz')||'{}');document.querySelectorAll('.user-btn').forEach(b=>b.classList.remove('active'));document.getElementById('btn-'+currentUser)?.classList.add('active');updateScore();}
+function saveUserData(){localStorage.setItem('jw-user',currentUser);localStorage.setItem('jw-'+currentUser+'-score',totalScore);localStorage.setItem('jw-'+currentUser+'-progress',JSON.stringify(progress));localStorage.setItem('jw-'+currentUser+'-quiz',JSON.stringify(quizAnswered));}
+function switchUser(uid){currentUser=uid;localStorage.setItem('jw-user',uid);loadUserData();selectedWordIdx=-1;render();}
+function updateScore(){document.getElementById('score-badge').textContent=totalScore+' 分';}
+function handleQuiz(wk,ch,co){if(quizAnswered[wk])return;quizAnswered[wk]=ch;if(ch===co){totalScore+=10;progress[wk]='correct';}else{progress[wk]='wrong';}saveUserData();updateScore();renderContent();renderProgress();}
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+
+function render(){renderTabs();renderContent();renderProgress();}
+function renderTabs(){document.getElementById('layer-tabs').innerHTML=RULES.map((r,i)=>'<button class="layer-tab'+(i===currentRuleIdx?' active':'')+'" onclick="currentRuleIdx='+i+';selectedWordIdx=-1;render();">'+r.emoji+' '+r.name.split(' ')[0]+'</button>').join('');}
+
+function renderContent(){
+  const r=RULES[currentRuleIdx],c=r.comic;
+  let h='<div class="rule-card"><div class="rule-header"><span class="rule-emoji">'+r.emoji+'</span><div><div class="rule-name">'+r.name+'</div><span class="rule-formula-tag">'+r.formula+'</span></div></div>';
+  h+='<div class="comic-grid">'+c.panels.map((p,i)=>'<div class="comic-panel" style="background:'+p.color+';border:1px solid '+p.border+'"><div class="panel-num">'+(i+1)+'</div><div class="panel-emoji">'+p.emoji+'</div><div class="panel-text">'+p.text+'</div></div>').join('')+'</div>';
+  h+='<div class="comic-formula-text">'+c.formula+'</div>';
+  h+='<div class="blindspot-box"><div class="bs-label">💡 中日文思維差異</div><div class="bs-grid"><div class="bs-cn"><b>🇹🇼 中文</b>'+r.blindspot.cn+'</div><div class="bs-jp"><b>🇯🇵 日文</b>'+r.blindspot.jp+'</div></div></div></div>';
+  h+='<div class="section-label">📚 練習單字（'+r.words.length+' 字）</div>';
+  h+='<div class="word-grid">'+r.words.map((w,i)=>{const d=progress[w.id]==='correct';return '<button class="word-chip'+(i===selectedWordIdx?' active':'')+'" onclick="selectedWordIdx='+i+';renderContent();renderProgress();" style="'+(d?'border-color:var(--green);':'')+'">'+(d?'✅ ':'')+(w.chinese||w.kanji)+'</button>';}).join('')+'</div>';
+
+  if(selectedWordIdx>=0){
+    const w=r.words[selectedWordIdx],ans=quizAnswered[w.id],correct=w.quizAnswer;
+    h+='<div class="detail-card">';
+
+    if(w.quizType==='onyomi'){
+      const opts=shuffle([w.quizAnswer,...w.distractors]);
+      h+='<div style="text-align:center;font-size:1.3rem;font-weight:700;margin:8px 0;">'+w.kanji+' '+S(w.reading)+'</div>';
+      h+='<div style="text-align:center;font-size:0.75rem;color:var(--dim);">中文：'+w.cn+'</div>';
+      h+='<div style="text-align:center;font-size:0.72rem;color:var(--gold);margin:8px 0;">🧪 '+w.quizQ+'</div>';
+      h+='<div class="quiz-row">'+opts.map(o=>{let cl='quiz-opt';if(ans){if(o===correct)cl+=' correct';else if(o===ans)cl+=' wrong';}return '<button class="'+cl+'" onclick="handleQuiz(\''+w.id+'\',\''+o+'\',\''+correct+'\')"'+(ans?' disabled':'')+'>'+o+' '+S(o)+'</button>';}).join('')+'</div>';
+    }else if(w.quizType==='compound'){
+      const opts=shuffle([w.quizAnswer,...w.distractors]);
+      h+='<div style="text-align:center;margin:8px 0;"><span style="font-size:1.1rem;font-weight:700;color:var(--blue);">'+w.base+'</span><span style="font-size:1.1rem;font-weight:700;color:var(--gold);margin:0 4px;">+ ?</span><span style="font-size:1.1rem;font-weight:700;color:var(--dim);">→</span><span style="font-size:1.1rem;font-weight:700;margin-left:4px;">'+w.chinese+'</span></div>';
+      h+='<div style="text-align:center;font-size:0.72rem;color:var(--gold);margin:8px 0;">🧪 '+w.quizQ+'</div>';
+      h+='<div class="quiz-row">'+opts.map(o=>{let cl='quiz-opt';if(ans){if(o===correct)cl+=' correct';else if(o===ans)cl+=' wrong';}return '<button class="'+cl+'" onclick="handleQuiz(\''+w.id+'\',\''+o+'\',\''+correct+'\')"'+(ans?' disabled':'')+'>'+o+' '+S(o)+'</button>';}).join('')+'</div>';
+    }else if(w.quizType==='kanji'){
+      const opts=shuffle([w.quizAnswer,...w.distractors]);
+      h+='<div style="text-align:center;font-size:1.3rem;font-weight:700;margin:8px 0;">'+w.kanji+' '+S(w.reading)+'</div>';
+      h+='<div style="text-align:center;font-size:0.72rem;color:var(--gold);margin:8px 0;">🧪 '+w.quizQ+'</div>';
+      h+='<div class="quiz-row">'+opts.map(o=>{let cl='quiz-opt';if(ans){if(o===correct)cl+=' correct';else if(o===ans)cl+=' wrong';}return '<button class="'+cl+'" onclick="handleQuiz(\''+w.id+'\',\''+o+'\',\''+correct+'\')"'+(ans?' disabled':'')+'>'+o+'</button>';}).join('')+'</div>';
+    }else if(w.quizType==='morphology'){
+      const opts=shuffle([w.quizAnswer,...w.distractors]);
+      h+='<div style="text-align:center;margin:8px 0;"><span style="font-size:1.1rem;font-weight:700;color:var(--blue);">'+w.base+'</span><span style="font-size:1.1rem;font-weight:700;color:var(--gold);margin:0 4px;">→ ?</span></div>';
+      h+='<div style="text-align:center;font-size:0.8rem;color:var(--dim);">'+w.chinese+'</div>';
+      h+='<div style="text-align:center;font-size:0.72rem;color:var(--gold);margin:8px 0;">🧪 '+w.quizQ+'</div>';
+      h+='<div class="quiz-row">'+opts.map(o=>{let cl='quiz-opt';if(ans){if(o===correct)cl+=' correct';else if(o===ans)cl+=' wrong';}return '<button class="'+cl+'" onclick="handleQuiz(\''+w.id+'\',\''+o+'\',\''+correct+'\')"'+(ans?' disabled':'')+'>'+o+' '+S(o)+'</button>';}).join('')+'</div>';
+    }
+
+    if(ans){
+      const isC=ans===correct;
+      h+='<div style="text-align:center;margin-top:10px;font-size:0.75rem;color:'+(isC?'var(--green)':'var(--red)')+';">'+(isC?'✅ 正確！':'❌ 正確答案：'+correct)+'</div>';
+      if(w.hint)h+='<div style="text-align:center;font-size:0.68rem;color:var(--dim);margin:4px 0;">'+w.hint+'</div>';
+      if(w.word)h+='<div style="text-align:center;margin:8px 0;font-size:1rem;font-weight:700;">'+w.word+' '+S(w.word)+'</div>';
+      if(w.reading)h+='<div style="text-align:center;margin:8px 0;font-size:1rem;font-weight:700;">'+w.kanji+'（'+w.reading+'）'+S(w.reading)+'</div>';
+    }
+    h+='</div>';
+  }
+  document.getElementById('content').innerHTML=h;
+}
+
+function renderProgress(){const r=RULES[currentRuleIdx];const done=r.words.filter(w=>progress[w.id]==='correct').length;document.getElementById('progress-row').innerHTML=r.words.map((w,i)=>{const d=progress[w.id]==='correct';return '<button class="pill'+(d?' done':'')+(i===selectedWordIdx?' current':'')+'" onclick="selectedWordIdx='+i+';renderContent();renderProgress();">'+(i+1)+'</button>';}).join('')+'<span class="progress-label">'+done+'/'+r.words.length+'</span>';}
+
+loadUserData();render();
+if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{});}
+</script>
+</body>
+</html>
